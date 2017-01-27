@@ -13,7 +13,7 @@
         transport: nxapi 
         interface: "{{ item.interface }}"
         ospf: "{{ ospf.process }}"
-        area: "{{ ospf.group }}"
+        area: "{{ ospf.area }}"
         passive_interface: true
         state: absent
     - name: Disable OSPF 

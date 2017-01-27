@@ -1,0 +1,15 @@
+# This example removes the SVIs from every switch
+---
+
+- name: Remove VLAN Interfaces on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Remove SVI Interface 
+      with_items: "{{ vlans }}"
+      nxos_config: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        lines: 
+          - "no interface {{ item.interface }}"
+        save: yes

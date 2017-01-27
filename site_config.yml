@@ -1,0 +1,85 @@
+# This is a single playbook that maintains the L2 and L3 VLAN configuration 
+# On all switches in a site
+
+---
+- hosts: switches
+  connection: local
+  tasks: 
+    - name: configure vlans
+      with_items: "{{ vlans }}"
+      nxos_vlan:
+        host: "{{ inventory_hostname }}"
+        vlan_id: "{{ item.vlan_id }}"
+        name: "{{ item.name }} "
+        state: present
+        transport: nxapi
+
+- name: Setup VLAN Interfaces on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Create SVI Interface 
+      with_items: "{{ vlans }}"
+      nxos_config: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        lines: 
+          - "interface {{ item.interface }}"
+        save: yes
+    - name: Configure IPv4 Address on SVI
+      with_items: "{{ vlans }}"
+      nxos_ip_interface:
+        host: "{{ inventory_hostname }}"
+        state: present
+        transport: nxapi
+        interface: "{{ item.interface }} "
+        addr: "{{ item.prefix }}{{svi_octet}}"
+        mask: "{{ item.gw_mask }}"  
+    - name: Enable HSRP Feature
+      nxos_feature: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi
+        feature: hsrp
+        state: enabled
+    - name: Setup HSRP on SVI
+      with_items: "{{ vlans }}"
+      nxos_hsrp: 
+        host: "{{ inventory_hostname }}"
+        state: present 
+        transport: nxapi
+        interface: "{{ item.interface }}"
+        group: "{{ hsrp.group }}"
+        vip: "{{ item.gw_addr }}"
+
+- name: Enable OSPF Feature
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Enable OSPF Feature
+      nxos_feature: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi
+        feature: ospf
+        state: enabled
+
+- name: Setup OSPF on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Configure OSPF
+      nxos_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        ospf: "{{ ospf.process }}"
+        state: present
+    - name: Enable OSPF on SVIs 
+      with_items: "{{ vlans }}"
+      nxos_interface_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        interface: "{{ item.interface }}"
+        ospf: "{{ ospf.process }}"
+        area: "{{ ospf.area }}"
+        passive_interface: true
+        
+        

@@ -1,0 +1,35 @@
+# This example ensures the correct OSPF Configuration is setup
+---
+
+- name: Enable OSPF Feature
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Enable OSPF Feature
+      nxos_feature: 
+        host: "{{ inventory_hostname }}"
+        state: present 
+        transport: nxapi
+        feature: ospf
+        state: enabled
+
+- name: Setup OSPF on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Configure OSPF
+      nxos_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        ospf: "{{ ospf.process }}"
+        state: present
+    - name: Enable OSPF on SVIs 
+      with_items: "{{ vlans }}"
+      nxos_interface_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        interface: "{{ item.interface }}"
+        ospf: "{{ ospf.process }}"
+        area: "{{ ospf.group }}"
+        passive_interface: true
+        

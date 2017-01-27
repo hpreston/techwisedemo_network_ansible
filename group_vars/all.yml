@@ -1,0 +1,26 @@
+vlans:
+  - vlan_id: 3001
+    name: TechWise_01
+    interface: Vlan3001
+    prefix: 10.30.01.
+    gw_mask: 24
+    gw_addr: 10.30.01.1
+  - vlan_id: 3002
+    name: TechWise_02
+    interface: Vlan3002
+    prefix: 10.30.02.
+    gw_mask: 24
+    gw_addr: 10.30.02.1
+  - vlan_id: 3003
+    name: TechWise_03
+    interface: Vlan3003
+    prefix: 10.30.03.
+    gw_mask: 24
+    gw_addr: 10.30.03.1
+    
+ospf: 
+  process: 30
+  area: 30 
+  
+hsrp: 
+  group: 10    

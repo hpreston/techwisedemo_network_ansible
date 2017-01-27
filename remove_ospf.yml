@@ -1,0 +1,23 @@
+# This example removes the demo OSPF Configuration from the Switches
+---
+
+- name: Clear OSPF on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Disable OSPF on SVIs 
+      with_items: "{{ vlans }}"
+      nxos_interface_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        interface: "{{ item.interface }}"
+        ospf: 30
+        area: 30
+        passive_interface: true
+        state: absent
+    - name: Disable OSPF 
+      nxos_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        ospf: 30
+        state: absent

@@ -1,0 +1,50 @@
+# This is a single playbook that clears the L2 and L3 VLAN configuration 
+# for the Ansible Demo on all switches in a site
+
+---
+- name: Clear OSPF on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Disable OSPF on SVIs 
+      with_items: "{{ vlans }}"
+      nxos_interface_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        interface: "{{ item.interface }}"
+        ospf: "{{ ospf.process }}"
+        area: "{{ ospf.group }}"
+        passive_interface: true
+        state: absent
+    - name: Disable OSPF 
+      nxos_ospf: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        ospf: "{{ ospf.process }}"
+        state: absent
+
+- name: Remove VLAN Interfaces on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Remove SVI Interface 
+      with_items: "{{ vlans }}"
+      nxos_config: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        lines: 
+          - "no interface {{ item.interface }}"
+        save: yes
+
+- hosts: switches
+  connection: local
+  tasks: 
+    - name: configure vlans
+      with_items: "{{ vlans }}"
+      nxos_vlan:
+        host: "{{ inventory_hostname }}"
+        vlan_id: "{{ item.vlan_id }}"
+        name: "{{ item.name }} "
+        state: absent
+        transport: nxapi
+        

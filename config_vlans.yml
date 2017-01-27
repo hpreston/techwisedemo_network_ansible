@@ -1,0 +1,19 @@
+# This example ensures the correct VLANs are configured on every switch
+
+---
+- hosts: switches
+  connection: local
+  tasks: 
+    - name: configure vlans
+      with_items: 
+        - vlan_id: 3001
+          name: ANSIBLE1
+        - vlan_id: 3002
+          name: ANSIBLE2
+      nxos_vlan:
+        host: "{{ inventory_hostname }}"
+        vlan_id: "{{ item.vlan_id }}"
+        name: "{{ item.name }} "
+        state: present
+        transport: nxapi
+        

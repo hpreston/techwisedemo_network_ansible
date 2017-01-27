@@ -1,0 +1,110 @@
+# This example ensures the correct SVIs are configured on every switch
+---
+- name: Setup Interfaces on Distribution Switches
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: create SVI Interface 
+      with_items: 
+        - interface: Vlan3001
+        - interface: Vlan3002
+      nxos_config: 
+        host: "{{ inventory_hostname }}"
+        transport: nxapi 
+        lines: 
+          - "interface {{ item.interface }}"
+        save: yes
+
+- name: Configure SVIs on Distribution 1
+  hosts: distribution1
+  connection: local
+  tasks: 
+    - name: Configure IPv4 Addresses
+      with_items: 
+        - interface: vlan3001
+          name: ANSIBLE1
+          gw_addr: 10.30.01.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.01.2
+          dist2_addr: 10.30.01.3
+        - interface: vlan3002
+          name: ANSIBLE2
+          gw_addr: 10.30.02.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.02.2
+          dist2_addr: 10.30.02.3
+      nxos_ip_interface:
+        host: "{{ inventory_hostname }}"
+        state: present
+        transport: nxapi
+        interface: "{{ item.interface }} "
+        addr: "{{ item.dist1_addr }}"
+        mask: "{{ item.gw_mask }}"
+        version: "{{ item.gw_version }}"
+
+- name: Configure SVIs on Distribution 2
+  hosts: distribution2
+  connection: local
+  tasks: 
+    - name: Configure IPv4 Addresses
+      with_items: 
+        - interface: vlan3001
+          name: ANSIBLE1
+          gw_addr: 10.30.01.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.01.2
+          dist2_addr: 10.30.01.3
+        - interface: vlan3002
+          name: ANSIBLE2
+          gw_addr: 10.30.02.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.02.2
+          dist2_addr: 10.30.02.3
+      nxos_ip_interface:
+        host: "{{ inventory_hostname }}"
+        state: present
+        transport: nxapi
+        interface: "{{ item.interface }} "
+        addr: "{{ item.dist2_addr }}"
+        mask: "{{ item.gw_mask }}"
+        version: "{{ item.gw_version }}"
+        
+- name: Configure HSRP on Distribution SVIs
+  hosts: distribution
+  connection: local
+  tasks: 
+    - name: Enable HSRP Feature
+      nxos_feature: 
+        host: "{{ inventory_hostname }}"
+        state: present 
+        transport: nxapi
+        feature: hsrp
+        state: enabled
+    - name: Setup
+      with_items: 
+        - interface: vlan3001
+          name: ANSIBLE1
+          gw_addr: 10.30.01.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.01.2
+          dist2_addr: 10.30.01.3
+        - interface: vlan3002
+          name: ANSIBLE2
+          gw_addr: 10.30.02.1
+          gw_mask: 24
+          gw_version: v4
+          dist1_addr: 10.30.02.2
+          dist2_addr: 10.30.02.3
+      nxos_hsrp: 
+        host: "{{ inventory_hostname }}"
+        state: present 
+        transport: nxapi
+        interface: "{{ item.interface }}"
+        group: 10
+        vip: "{{ item.gw_addr }}"
+                

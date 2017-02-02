@@ -19,17 +19,24 @@ vlans:
     prefix: 10.30.10.
     gw_mask: 24
     gw_addr: 10.30.10.1
-    
+
   - vlan_id: 3011
     name: TechWise_11
     interface: Vlan3011
     prefix: 10.30.11.
     gw_mask: 24
     gw_addr: 10.30.11.1
-    
-ospf: 
+
+  - vlan_id: 3012
+    name: TechWise_12
+    interface: Vlan3012
+    prefix: 10.30.12.
+    gw_mask: 24
+    gw_addr: 10.30.12.1
+
+ospf:
   process: 30
-  area: 30 
-  
-hsrp: 
-  group: 10    
+  area: 30
+
+hsrp:
+  group: 10

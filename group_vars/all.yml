@@ -12,10 +12,10 @@ vlans:
     prefix: 10.30.2.
     gw_mask: 24
     gw_addr: 10.30.2.1
-    
+
 ospf: 
   process: 30
-  area: 30 
-  
-hsrp: 
-  group: 10    
+  area: 30
+
+hsrp:
+  group: 10

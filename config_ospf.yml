@@ -8,7 +8,6 @@
     - name: Enable OSPF Feature
       nxos_feature: 
         host: "{{ inventory_hostname }}"
-        state: present 
         transport: nxapi
         feature: ospf
         state: enabled
@@ -30,6 +29,6 @@
         transport: nxapi 
         interface: "{{ item.interface }}"
         ospf: "{{ ospf.process }}"
-        area: "{{ ospf.group }}"
+        area: "{{ ospf.area }}"
         passive_interface: true
         

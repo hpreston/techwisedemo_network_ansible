@@ -25,7 +25,6 @@
     - name: Enable HSRP Feature
       nxos_feature: 
         host: "{{ inventory_hostname }}"
-        state: present 
         transport: nxapi
         feature: hsrp
         state: enabled
